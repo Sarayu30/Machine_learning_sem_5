@@ -1,1 +1,77 @@
 
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.tree import DecisionTreeClassifier, plot_tree
+from sklearn.metrics import accuracy_score, classification_report
+
+def load_data(filepath):
+    """Load dataset from a given filepath."""
+    data = pd.read_csv(filepath)
+    return data
+
+def preprocess_data(data):
+    """Preprocess data: split into features and target, and train-test split."""
+    X = data.drop('NSP', axis=1)  # Assuming 'NSP' is the target column
+    y = data['NSP']
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+    return X_train, X_test, y_train, y_test
+
+def train_decision_tree(X_train, y_train):
+    """Train a Decision Tree classifier."""
+    model = DecisionTreeClassifier(random_state=42)
+    model.fit(X_train, y_train)
+    return model
+
+def evaluate_model(model, X_train, y_train, X_test, y_test):
+    """Evaluate the model and print accuracy scores and classification report."""
+    train_accuracy = model.score(X_train, y_train)
+    test_accuracy = model.score(X_test, y_test)
+    print(f"Training Set Accuracy: {train_accuracy:.4f}")
+    print(f"Testing Set Accuracy: {test_accuracy:.4f}")
+    print("Classification Report:\n", classification_report(y_test, model.predict(X_test)))
+
+def visualize_tree(model, feature_names):
+    """Visualize the trained Decision Tree."""
+    plt.figure(figsize=(12, 8))
+    plot_tree(model, feature_names=feature_names, filled=True)
+    plt.title("Decision Tree Visualization")
+    plt.show()
+
+def train_decision_tree_with_depth(X_train, y_train, max_depth):
+    """Train a Decision Tree with a maximum depth constraint."""
+    model = DecisionTreeClassifier(max_depth=max_depth, random_state=42)
+    model.fit(X_train, y_train)
+    return model
+
+def train_decision_tree_with_entropy(X_train, y_train):
+    """Train a Decision Tree using 'entropy' as the criterion."""
+    model = DecisionTreeClassifier(criterion="entropy", random_state=42)
+    model.fit(X_train, y_train)
+    return model
+
+# Main execution
+if __name__ == "__main__":
+    # Load and preprocess the data
+    filepath = 'your_data.csv'  # Replace with your data file path
+    data = load_data(filepath)
+    X_train, X_test, y_train, y_test = preprocess_data(data)
+    
+    # Train and evaluate the basic Decision Tree
+    tree_model = train_decision_tree(X_train, y_train)
+    print("Decision Tree Classifier:")
+    evaluate_model(tree_model, X_train, y_train, X_test, y_test)
+    visualize_tree(tree_model, X_train.columns)
+
+    # Train and evaluate Decision Tree with max_depth
+    print("\nDecision Tree with max_depth=5:")
+    tree_model_depth = train_decision_tree_with_depth(X_train, y_train, max_depth=5)
+    evaluate_model(tree_model_depth, X_train, y_train, X_test, y_test)
+    visualize_tree(tree_model_depth, X_train.columns)
+
+    # Train and evaluate Decision Tree with Entropy criterion
+    print("\nDecision Tree with Entropy criterion:")
+    tree_model_entropy = train_decision_tree_with_entropy(X_train, y_train)
+    evaluate_model(tree_model_entropy, X_train, y_train, X_test, y_test)
+    visualize_tree(tree_model_entropy, X_train.columns)
